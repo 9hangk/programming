@@ -1,0 +1,371 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<time.h>
+#include<Windows.h>
+
+#define MAX 9
+#define RANDOM 40  // 숫자를 40번 섞는다
+
+//사용자단 방향키 입력 명령
+#define KEY_UP (256 + 72)
+#define KEY_DOWN (256 + 80)
+#define KEY_LEFT (256 + 75)
+#define KEY_RIGHT (256 + 77)
+
+//랜덤하게 자동으로 방향키를 입력
+#define AUTO_UP 1
+#define AUTO_DOWN 2
+#define AUTO_LEFT 3
+#define AUTO_RIGHT 4
+
+void DrawMap(int* px, int* py, int(*p)[3]);  //화면을 출력해주는 함수
+void Control(int flag, int x, int y, int(*p)[3]);  //값의 위치를 방향에 따라서 교환해주는 함수
+//void DrawLine();
+void gotoxy(int x, int y);
+int GetKey();
+
+void main()
+{
+	int map[3][3] = {
+		{ 1,2,3 },
+		{ 4,5,6 },
+		{ 7,8,0 }
+	};
+
+	int keyinfo = 0;   //키보드 명령어
+	int zero_xPos = 0;   //열 단위로 값이 지정됨
+	int zero_yPos = 0;   //행 단위로 값이 지정됨 
+	int puzzle_run = 1;
+	int randomNumber = 0;  //랜덤하게 값을 섞을 것인지 묻는 변수
+	int autoControl = 0;  //랜덤함수를 통해서 1에서 4까지 값이 들어감
+	int mov_flag = 0;  //방향에 따른 값의 저장(1~4)
+	
+	// 퍼즐판의 전체 위치
+	int map_x = 1;
+	int map_y = 1;
+
+	srand((unsigned)time(0));
+
+	printf("섞으시겠습니까?(1) : ");
+	scanf_s("%d", &randomNumber);
+
+	while (puzzle_run)
+	{
+		if (randomNumber == 1)
+		{
+			for (int i = 0; i < RANDOM; i++)
+			{
+				DrawMap(&zero_xPos, &zero_yPos, map);
+
+				Sleep(1000);
+
+				system("cls");
+
+				autoControl = (rand() % 4) + 1;
+
+				switch (autoControl)
+				{
+				case AUTO_UP:
+					mov_flag = 1;
+					Control(mov_flag, zero_xPos, zero_yPos, map);
+					break;
+				case AUTO_DOWN:
+					mov_flag = 2;
+					Control(mov_flag, zero_xPos, zero_yPos, map);
+					break;
+				case AUTO_LEFT:
+					mov_flag = 3;
+					Control(mov_flag, zero_xPos, zero_yPos, map);
+					break;
+				case AUTO_RIGHT:
+					mov_flag = 4;
+					Control(mov_flag, zero_xPos, zero_yPos, map);
+					break;
+				}
+			}
+			randomNumber = 0;
+
+		}
+
+
+
+		system("cls");
+
+
+
+		DrawMap(&zero_xPos, &zero_yPos, map);
+
+
+
+		keyinfo = GetKey();
+
+
+
+		switch (keyinfo)
+		{
+		case KEY_UP:
+			mov_flag = 1;
+			Control(mov_flag, zero_xPos, zero_yPos, map);
+			break;
+		case KEY_DOWN:
+			mov_flag = 2;
+			Control(mov_flag, zero_xPos, zero_yPos, map);
+			break;
+		case KEY_LEFT:
+			mov_flag = 3;
+
+			Control(mov_flag, zero_xPos, zero_yPos, map);
+
+			break;
+
+		case KEY_RIGHT:
+
+			mov_flag = 4;
+
+			Control(mov_flag, zero_xPos, zero_yPos, map);
+
+			break;
+
+		}
+
+	}
+
+}
+
+
+
+void DrawMap(int* px, int* py, int(*p)[3])
+
+{
+
+	//DrawLine();
+
+	for (int y = 0; y < 3; y++)
+
+	{
+
+		for (int x = 0; x < 3; x++)
+
+		{
+
+			gotoxy(x , y);
+
+
+
+			if (p[y][x] == 0)
+
+			{
+
+				*py = y;
+
+				*px = x;
+
+				printf("○");
+
+			}
+
+			else if (p[y][x] > 0)
+
+			{
+
+				printf("%d ", p[y][x]);
+
+			}
+
+		}
+
+		printf("\n");
+
+	}
+
+}
+
+
+
+void Control(int flag, int lx, int ly, int(*p)[3])
+{
+	int temp = 0;
+	int mov_x_value = lx;
+	int mov_y_value = ly;
+	if (flag == 1) {
+		mov_y_value--;
+		if (mov_y_value != -1)
+		{
+			temp = p[mov_y_value][mov_x_value];
+			p[mov_y_value][mov_x_value] = 0;
+
+			mov_y_value++;
+			p[mov_y_value][mov_x_value] = temp;
+		}
+	}
+	else if (flag == 2)
+	{
+		mov_y_value++;
+		if (mov_y_value != 3)
+		{
+			temp = p[mov_y_value][mov_x_value];
+			p[mov_y_value][mov_x_value] = 0;
+
+			mov_y_value--;
+			p[mov_y_value][mov_x_value] = temp;
+		}
+	}
+	else if (flag == 3)
+	{
+
+		mov_x_value--;
+
+		if (mov_x_value != -1)
+
+		{
+
+			temp = p[mov_y_value][mov_x_value];
+
+			p[mov_y_value][mov_x_value] = 0;
+
+
+
+			mov_x_value++;
+
+			p[mov_y_value][mov_x_value] = temp;
+
+		}
+
+	}
+
+	else if (flag == 4)
+
+	{
+
+		mov_x_value++;
+
+		if (mov_x_value != 3)
+
+		{
+
+			temp = p[mov_y_value][mov_x_value];
+
+			p[mov_y_value][mov_x_value] = 0;
+
+
+
+			mov_x_value--;
+
+			p[mov_y_value][mov_x_value] = temp;
+
+		}
+
+	}
+
+}
+
+
+
+void DrawLine()
+
+{
+
+	int x = 80;
+
+	int y = 10;
+
+
+
+	gotoxy(x - 8, y - 2);
+
+	printf("  ");
+
+	for (int top = 0; top < 23; top++)
+
+	{
+
+		printf("  ");
+
+	}
+
+	printf("  ");
+
+
+
+	for (int left = 0; left < 15; left++)
+
+	{
+
+		gotoxy(x - 8, y + (left - 1));
+
+		printf("  ");
+
+	}
+
+
+
+	for (int right = 0; right < 15; right++)
+
+	{
+
+		gotoxy(x + 39, y + (right - 1));
+
+		printf("  ");
+
+	}
+
+
+
+	gotoxy(x - 8, y + 14);
+
+	printf("  ");
+
+	for (int bottom = 0; bottom < 23; bottom++)
+
+	{
+
+		printf("  ");
+
+	}
+
+	printf("  ");
+
+}
+
+
+
+void gotoxy(int x, int y)
+
+{
+
+	COORD Pos;
+
+	Pos.X = x;
+
+	Pos.Y = y;
+
+
+
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+
+}
+
+
+
+int GetKey()
+
+{
+
+	int keyinfo = _getch();
+
+
+
+	if (keyinfo == 0 || keyinfo == 224)
+
+	{
+
+		keyinfo = 256 + _getch();
+
+	}
+
+
+
+	return keyinfo;
+
+}
